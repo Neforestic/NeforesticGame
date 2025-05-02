@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Sort Puzzle</title>
+  <style>
+    /* Combined CSS from style.css and inline styles */
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f0fff0, #ccffcc);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      margin: 20px;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #00B300;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #level-label {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #00B300;
+    }
+
+    button {
+      background-color: #00B300;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      margin: 10px;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #009900;
+    }
+
+    #tube-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+      max-width: 1000px;
+    }
+
+    .tube {
+      width: 60px;
+      height: 200px;
+      background-color: #e0e0e0;
+      border-radius: 15px;
+      box-shadow: inset 0 0 5px #aaa;
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-start;
+      padding: 3px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .tube:hover {
+      transform: scale(1.05);
+    }
+
+    .liquid {
+      width: 100%;
+      border-radius: 6px;
+      margin: 1px 0;
+      transition: all 0.3s ease;
+    }
+
+    #confetti-container {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      opacity: 0.7;
+      animation: fall 3s linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+      }
+    }
+
+    #start-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #f0fff0, #ccffcc);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      text-align: center;
+    }
+
+    #start-screen h1 {
+      color: #00B300;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+    }
+
+    #start-screen p {
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    #start-button {
+      background-color: #00B300;
+      color: white;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    #instructions-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #00B300;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    #instructions-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #instructions-content {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    #close-instructions {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #00B300;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="start-screen">
+    <h1>Water Sort Puzzle</h1>
+    <p>Sort all the liquids so each tube contains only one color.<br>Tap a tube, then tap another to pour.</p>
+    <p><strong>Created by: Neforestic</strong></p>
+    <button id="start-button">Start Game</button>
+  </div>
+
+  <button id="instructions-button">Instructions</button>
+
+  <div id="instructions-popup">
+    <div id="instructions-content">
+      <h2>How to Play</h2>
+      <p>Sort all the liquids so each tube contains only one color.</p>
+      <ul style="text-align:left;">
+        <li>Tap a tube to select it.</li>
+        <li>Tap another tube to pour the top color.</li>
+        <li>Each tube can hold up to 4 units of color.</li>
+        <li>But you have to pls</li>
+        <li>You win when all tubes are sorted.</li>
+      </ul>
+      <button id="close-instructions">Close</button>
+    </div>
+  </div>
+
+  <header>
+    <h1>Water Sort Puzzle</h1>
+    <div id="controls">
+      <span id="level-label">Level 1</span>
+      <button id="pause-button">Pause</button>
+      <button id="resume-button" style="display:none;">Resume</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="tube-container"></div>
+  </main>
+
+  <audio id="pour-sound">
+    <source src="sounds/pour.ogg" type="audio/ogg">
+    <source src="sounds/pour.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="win-sound">
+    <source src="sounds/win.ogg" type="audio/ogg">
+    <source src="sounds/win.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let pourSound, winSound;
+    let audioUnlocked = false;
+
+    function initAudio() {
+      pourSound = document.getElementById('pour-sound');
+      winSound = document.getElementById('win-sound');
+
+      const unlock = () => {
+        pourSound.play().then(() => pourSound.pause()).catch(() => {});
+        winSound.play().then(() => winSound.pause()).catch(() => {});
+        document.removeEventListener('click', unlock);
+        audioUnlocked = true;
+      };
+
+      document.addEventListener('click', unlock);
+    }
+
+    const levelLabel = document.getElementById('level-label');
+    const tubeContainer = document.getElementById('tube-container');
+    const pauseButton = document.getElementById('pause-button');
+    const resumeButton = document.getElementById('resume-button');
+
+    let paused = false;
+    let currentLevel = 1;
+    const totalLevels = 30;
+
+    let tubes = [];
+    let selectedTube = null;
+
+    function pour(fromTube, toTube) {
+      const fromLiquids = [...fromTube.querySelectorAll('.liquid')];
+      if (fromLiquids.length === 0) return;
+
+      const { color, count } = getTopColorAndCount(fromTube);
+      const toLiquids = toTube.querySelectorAll('.liquid');
+      const spaceLeft = 4 - toLiquids.length;
+      const pourCount = Math.min(count, spaceLeft);
+
+      let poured = false;
+      for (let i = 0; i < pourCount; i++) {
+        const liquid = fromTube.querySelector('.liquid:last-child');
+        if (liquid && liquid.style.backgroundColor === color) {
+          toTube.appendChild(liquid);
+          poured = true;
+        }
+      }
+
+      if (poured && audioUnlocked) pourSound.play().catch(e => console.warn('pour error:', e));
+      checkWin();
+    }
+
+    function showWinMessage() {
+      if (audioUnlocked) winSound.play().catch(e => console.warn('win error:', e));
+      launchConfetti();
+
+      const msg = document.createElement('div');
+      msg.id = 'win-message';
+      msg.innerHTML = `<h2>🎉 You completed Level ${currentLevel}! 🎉</h2>`;
+      msg.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        font-size: 1.5rem;
+        color: #00B300;
+        z-index: 999;
+        text-align: center;
+      `;
+      document.body.appendChild(msg);
+
+      setTimeout(() => {
+        msg.remove();
+        if (currentLevel < totalLevels) {
+          currentLevel++;
+          initLevel(currentLevel);
+        } else {
+          const finalMsg = document.createElement('div');
+          finalMsg.innerHTML = '<h1>🏆 Congratulations! You completed all levels! 🏆</h1>';
+          finalMsg.style.cssText = msg.style.cssText;
+          document.body.innerHTML = '';
+          document.body.appendChild(finalMsg);
+        }
+      }, 2500);
+    }
+
+    function initLevel(level) {
+      document.getElementById('win-message')?.remove();
+      tubeContainer.innerHTML = '';
+      tubes = generateTubes(level);
+      tubes.forEach(tube => tubeContainer.appendChild(tube));
+      levelLabel.textContent = `Level ${level}`;
+    }
+
+    function generateTubes(level) {
+      const tubeElements = [];
+      const baseColors = ['#FF0000', '#00BFFF', '#FFD700', '#8A2BE2', '#00FF7F', '#FF69B4', '#FF8C00'];
+
+      const colorCount = Math.min(4 + Math.floor(level / 3), baseColors.length);
+      const tubesToUse = colorCount + 2 + Math.floor(level / 5);
+      const maxTubeHeight = 4;
+
+      const colorPool = [];
+      for (let i = 0; i < colorCount; i++) {
+        for (let j = 0; j < maxTubeHeight; j++) {
+          colorPool.push(baseColors[i]);
+        }
+      }
+
+      colorPool.sort(() => Math.random() - 0.5);
+
+      const filledTubes = [];
+      let colorIndex = 0;
+      for (let i = 0; i < colorCount; i++) {
+        const tube = createTube();
+        for (let j = 0; j < maxTubeHeight; j++) {
+          if (colorIndex < colorPool.length) {
+            const liquid = document.createElement('div');
+            liquid.classList.add('liquid');
+            liquid.style.height = `${(100 / maxTubeHeight)}%`;
+            liquid.style.backgroundColor = colorPool[colorIndex++];
+            tube.appendChild(liquid);
+          }
+        }
+        filledTubes.push(tube);
+      }
+
+      const extraTubes = tubesToUse - filledTubes.length;
+      for (let i = 0; i < extraTubes; i++) {
+        const emptyTube = createTube();
+        filledTubes.push(emptyTube);
+      }
+
+      return filledTubes.sort(() => Math.random() - 0.5);
+    }
+
+    function createTube() {
+      const tube = document.createElement('div');
+      tube.classList.add('tube');
+      tube.addEventListener('click', () => handleTubeClick(tube));
+      return tube;
+    }
+
+    function getTopColorAndCount(tube) {
+      const liquids = [...tube.querySelectorAll('.liquid')];
+      if (liquids.length === 0) return null;
+
+      const topColor = liquids[liquids.length - 1].style.backgroundColor;
+      let count = 0;
+      for (let i = liquids.length - 1; i >= 0; i--) {
+        if (liquids[i].style.backgroundColor === topColor) count++;
+        else break;
+      }
+      return { color: topColor, count };
+    }
+
+    function canPour(fromTube, toTube) {
+      const fromLiquids = fromTube.querySelectorAll('.liquid');
+      const toLiquids = toTube.querySelectorAll('.liquid');
+      if (fromLiquids.length === 0 || toLiquids.length >= 4) return false;
+
+      const topFrom = getTopColorAndCount(fromTube);
+      if (!topFrom) return false;
+
+      const topToColor = toLiquids.length > 0
+        ? toLiquids[toLiquids.length - 1].style.backgroundColor
+        : null;
+
+      return toLiquids.length === 0 || topToColor === topFrom.color;
+    }
+
+    function handleTubeClick(tube) {
+      if (paused) return;
+
+      if (!selectedTube) {
+        selectedTube = tube;
+        tube.style.outline = '3px solid #00B300';
+      } else {
+        if (tube !== selectedTube && canPour(selectedTube, tube)) {
+          pour(selectedTube, tube);
+        }
+        selectedTube.style.outline = 'none';
+        selectedTube = null;
+      }
+    }
+
+    function checkWin() {
+      const allFilled = tubes.every(tube => {
+        const liquids = [...tube.querySelectorAll('.liquid')];
+        if (liquids.length === 0) return true;
+        const firstColor = liquids[0].style.backgroundColor;
+        return liquids.length === 4 && liquids.every(l => l.style.backgroundColor === firstColor);
+      });
+
+      if (allFilled) {
+        tubes.forEach(tube => tube.classList.add('shine'));
+        showWinMessage();
+      }
+    }
+
+    pauseButton.addEventListener('click', () => {
+      paused = true;
+      pauseButton.style.display = 'none';
+      resumeButton.style.display = 'inline-block';
+    });
+
+    resumeButton.addEventListener('click', () => {
+      paused = false;
+      resumeButton.style.display = 'none';
+      pauseButton.style.display = 'inline-block';
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initAudio();
+      initLevel(currentLevel);
+    });
+
+    function launchConfetti() {
+      const confettiContainer = document.createElement('div');
+      confettiContainer.id = 'confetti-container';
+      document.body.appendChild(confettiContainer);
+
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confettiContainer.appendChild(confetti);
+      }
+
+      setTimeout(() => {
+        confettiContainer.remove();
+      }, 3000);
+    }
+
+    // Start and instructions logic
+    document.getElementById('start-button').addEventListener('click', () => {
+      document.getElementById('start-screen').style.display = 'none';
+    });
+
+    document.getElementById('instructions-button').addEventListener('click', () => {
+      document.getElementById('instructions-popup').style.display = 'flex';
+    });
+
+    document.getElementById('close-instructions').addEventListener('click', () => {
+      document.getElementById('instructions-popup').style.display = 'none';
+    });
+  </script>
+</body>
+</html>
